@@ -1,0 +1,19 @@
+{
+    "name": "password-manager",
+    "description": "PHP Class for setting and checking a user's password",
+    "license": "MIT",
+    "authors": [
+        {
+            "name" : "Duncan Rumbold",
+            "email" : "djrumbold@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "PasswordManager": "src"
+        }
+    },
+    "require": {
+        "php": ">=5.5.0"
+    }
+}
