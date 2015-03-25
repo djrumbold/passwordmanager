@@ -24,9 +24,26 @@ class PasswordManager
             $this->registerScheme($desired_scheme);
     }
 
-    public function registerScheme(PasswordSchemeInterface $desired_scheme)
+    public function registerScheme(PasswordSchemeInterface $scheme)
     {
-        $this->password_schemes[$desired_scheme->getId()] = $desired_scheme;
+        if (!array_key_exists($scheme->getId(), $this->password_schemes))
+            $this->password_schemes[$scheme->getId()] = $scheme;
+    }
+
+    public function setDesiredScheme(PasswordSchemeInterface $desired_scheme)
+    {
+        $this->desired_scheme = $desired_scheme;
+        $this->registerScheme($desired_scheme);
+    }
+
+    public function createPassword(UserPasswordInterface $user_password, $raw_password)
+    {
+        if ($this->desired_scheme === null)
+            return false;
+
+        $coded_password = $this->desired_scheme->createPassword($user_password, $raw_password);
+
+        return true;
     }
 
     public function verifyPassword(UserPasswordInterface $user_password, $raw_password)
@@ -52,15 +69,7 @@ class PasswordManager
             // changed. Re-encode their password using the new scheme
             // and record which scheme has been used.
 
-            // Generate a random salt (may or may not actually be used
-            // by the encoder).
-            $size = mcrypt_get_iv_size(MCRYPT_CAST_256, MCRYPT_MODE_CFB);
-            $iv = mcrypt_create_iv($size, MCRYPT_DEV_RANDOM);
-            $salt = sha1($iv);
-
-            $coded_password = $this->desired_scheme->createPassword($raw_password, $salt);
-            $user_password->setPassword($coded_password);
-            $user_password->setPasswordScheme($this->desired_scheme->getId());
+            $this->createPassword($user_password, $raw_password);
         }
 
         return true;

@@ -11,14 +11,14 @@
 
 namespace PasswordManager;
 
-class SaltedSHA1Scheme implements PasswordSchemeInterface
+class BcryptScheme implements PasswordSchemeInterface
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'SaltedSHA1';
+        return 'Bcrypt';
     }
 
     /**
@@ -37,10 +37,14 @@ class SaltedSHA1Scheme implements PasswordSchemeInterface
             if ($user_password->getPassword() === null)
                 break;
 
-            if ($user_password->getSalt() === null)
+            $info = password_get_info($user_password->getPassword());
+            if (!$info || !is_array($info) || !array_key_exists('algo', $info))
                 break;
 
-            $valid = sha1($user_password->getSalt().$password_to_check) === $user_password->getPassword();
+            if ($info['algo'] !== PASSWORD_BCRYPT)
+                break;
+
+            $valid = password_verify($password_to_check, $user_password->getPassword());
             break;
         }
 
@@ -52,15 +56,12 @@ class SaltedSHA1Scheme implements PasswordSchemeInterface
      */
     public function createPassword(UserPasswordInterface $user_password, $raw_password)
     {
-        // Generate a random salt.
-        $size = mcrypt_get_iv_size(MCRYPT_CAST_256, MCRYPT_MODE_CFB);
-        $iv = mcrypt_create_iv($size, MCRYPT_DEV_RANDOM);
-        $salt = sha1($iv);
-
-        $hashed_password = sha1($salt.$raw_password);
+        // Intentionally ignore the salt parameter because password_hash will
+        // generate one automatically.
+        $hashed_password = password_hash($raw_password, PASSWORD_BCRYPT);
 
         $user_password->setPasswordScheme($this->getId());
         $user_password->setPassword($hashed_password);
-        $user_password->setSalt($salt);
+        $user_password->setSalt(null);
     }
 }

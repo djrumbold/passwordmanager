@@ -13,11 +13,17 @@ namespace PasswordManager;
 
 class UnsaltedSHA1Scheme implements PasswordSchemeInterface
 {
+    /**
+     * {@inheritdoc}
+     */
     public function getId()
     {
         return 'UnsaltedSHA1';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function verifyPassword(UserPasswordInterface $user_password, $password_to_check)
     {
         $valid = false;
@@ -38,10 +44,15 @@ class UnsaltedSHA1Scheme implements PasswordSchemeInterface
         return $valid;
     }
 
-    public function createPassword($raw_password, $salt = null)
+    /**
+     * {@inheritdoc}
+     */
+    public function createPassword(UserPasswordInterface $user_password, $raw_password)
     {
         $hashed_password = sha1($raw_password);
 
-        return $hashed_password;
+        $user_password->setPasswordScheme($this->getId());
+        $user_password->setPassword($hashed_password);
+        $user_password->setSalt(null);
     }
 }

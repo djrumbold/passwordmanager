@@ -31,4 +31,13 @@ interface PasswordSchemeInterface
      * @return bool
      */
     public function verifyPassword(UserPasswordInterface $user_password, $password_to_check);
+
+    /**
+     * Create new password information for the newly presented password. The $user_password
+     * parameter will be updated with the new information.
+     *
+     * @param UserPasswordInterface $user_password Password information to update
+     * @param string $raw_password The newly presented password
+     */
+    public function createPassword(UserPasswordInterface $user_password, $raw_password);
 }
