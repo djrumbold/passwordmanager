@@ -11,6 +11,11 @@
 
 namespace PasswordManager;
 
+/**
+ * Implementation of bcrypt password hashing using newer recommended
+ * PHP password functions.
+ * Requires PHP version 5.5 or newer.
+ */
 class BcryptScheme implements PasswordSchemeInterface
 {
     /**
@@ -35,6 +40,9 @@ class BcryptScheme implements PasswordSchemeInterface
                 break;
 
             if ($user_password->getPassword() === null)
+                break;
+
+            if (!version_compare(phpversion(), '5.5.0', '>='))
                 break;
 
             $info = password_get_info($user_password->getPassword());

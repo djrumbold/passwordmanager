@@ -11,6 +11,13 @@
 
 namespace PasswordManager;
 
+/**
+ * Implementation of a crude unsalted SHA1 password hashing scheme.
+ *
+ * This scheme is not recommended asa reliable password hashing tactic.
+ * It is provided as an example of how one might migrate from an
+ * existing scheme such as this.
+ */
 class UnsaltedSHA1Scheme implements PasswordSchemeInterface
 {
     /**

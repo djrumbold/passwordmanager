@@ -11,6 +11,16 @@
 
 namespace PasswordManager;
 
+/**
+ * The intention of this interface is to abstract the password generation
+ * and validating routines for the different password schemes that might
+ * possibly be used. The PasswordManager doesn't need to know the specifics
+ * about SHA1, SHA256, and bcrypt password hashing, only that they are
+ * different and handled by different objects that conform to the same interface.
+ *
+ * Implement this interface in a way provides compatibiilty with your existing
+ * user authentication system.
+ */
 interface PasswordSchemeInterface
 {
     /**

@@ -12,16 +12,21 @@
 namespace PasswordManager;
 
 /**
- * Implementation of a crude salted SHA1 password hashing scheme.
+ * Implementation of SHA256 password hashing scheme using PHP's
+ * legacy crypt() function.
+ *
+ * Use of this class is not recommended for users of PHP version
+ * 5.5 or newer - use a class which utilises the password_ functions
+ * instead.
  */
-class SaltedSHA1Scheme implements PasswordSchemeInterface
+class LegacyCryptSHA256Scheme implements PasswordSchemeInterface
 {
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return 'SaltedSHA1';
+        return 'LegacyCryptSHA256';
     }
 
     /**
@@ -43,8 +48,8 @@ class SaltedSHA1Scheme implements PasswordSchemeInterface
             if ($user_password->getSalt() === null)
                 break;
 
-            $valid = sha1($user_password->getSalt().$password_to_check) ===
-                $user_password->getPassword();
+            $valid = ($user_password->getPassword() ===
+                      crypt($password_to_check, $user_password->getSalt()));
             break;
         }
 
@@ -56,13 +61,22 @@ class SaltedSHA1Scheme implements PasswordSchemeInterface
      */
     public function createPassword(UserPasswordInterface $user_password, $raw_password)
     {
-        // Generate a random salt.
+        // Format salt according to crypt() documentation.
 
-        $size = mcrypt_get_iv_size(MCRYPT_CAST_256, MCRYPT_MODE_CFB);
-        $iv = mcrypt_create_iv($size, MCRYPT_DEV_URANDOM);
-        $salt = sha1($iv);
+        $salt = mcrypt_create_iv(16, MCRYPT_DEV_URANDOM);
 
-        $hashed_password = sha1($salt.$raw_password);
+        // Courtesy of https://github.com/ircmaxell/password_compat
+
+        $base64_digits = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+        $bcrypt64_digits = './ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        $encoded = base64_encode($salt);
+        $salt = strtr(rtrim($encoded, '='), $base64_digits, $bcrypt64_digits);
+
+        $salt = substr($salt, 0, 16);
+        $sha256_prefix = '$5$';
+        $salt = $sha256_prefix.$salt;
+
+        $hashed_password = crypt($raw_password, $salt);
 
         $user_password->setPasswordScheme($this->getId());
         $user_password->setPassword($hashed_password);

@@ -11,6 +11,13 @@
 
 namespace PasswordManager;
 
+/**
+ * An example 'in-memory' implementation of a class that conforms to
+ * the UserPasswordInterface requirement.
+ * In a given system, this class might be replaced by one with
+ * persistance, or by a more general User class that could be combined
+ * with something else that provides persistance.
+ */
 class UserPassword implements UserPasswordInterface
 {
     protected $password;
