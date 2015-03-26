@@ -121,4 +121,37 @@ class MigrationTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($pm->verifyPassword($up, 'hello'));
     }
 
+    public function testNoMigrationOnNoVerification()
+    {
+        $old_scheme = new LegacyCryptSHA256Scheme();
+        $new_scheme = new LegacyBcryptScheme();
+
+        $pm = new PasswordManager($old_scheme);
+        $pm->registerScheme($new_scheme);
+
+        // Firstly generate a user password using the SHA 256 scheme
+
+        $up = new UserPassword();
+        $pm->createPassword($up, 'hello');
+
+        $this->assertEquals('LegacyCryptSHA256', $up->getPasswordScheme());
+        $this->assertNotEquals(null, $up->getSalt());
+        $this->assertNotEquals(null, $up->getPassword());
+
+        $this->assertTrue($pm->verifyPassword($up, 'hello'));
+
+        // Now set a new designed password scheme
+
+        $pm->setDesiredScheme($new_scheme);
+
+        // Recheck password but get it wrong
+
+        $this->assertFalse($pm->verifyPassword($up, 'iforgot'));
+
+        // Examine the user password data again - nothing should have changed
+
+        $this->assertEquals('LegacyCryptSHA256', $up->getPasswordScheme());
+        $this->assertNotEquals(null, $up->getSalt());
+        $this->assertNotEquals(null, $up->getPassword());
+    }
 }
