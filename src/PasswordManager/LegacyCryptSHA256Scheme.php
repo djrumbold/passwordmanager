@@ -42,6 +42,9 @@ class LegacyCryptSHA256Scheme implements PasswordSchemeInterface
             if ($password_to_check === null)
                 break;
 
+            if (!is_string($password_to_check))
+                break;
+
             if ($user_password->getPassword() === null)
                 break;
 

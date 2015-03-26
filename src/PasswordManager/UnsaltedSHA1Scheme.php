@@ -41,6 +41,9 @@ class UnsaltedSHA1Scheme implements PasswordSchemeInterface
             if ($user_password->getPassword() === null)
                 break;
 
+            if (!is_string($password_to_check))
+                break;
+
             if ($password_to_check === null)
                 break;
 
