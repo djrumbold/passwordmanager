@@ -21,5 +21,4 @@ See the supplied unit tests for examples on how to instantiate the PasswordManag
 
 ### Using password_ functions on pre-5.5 versions of PHP.
 
-If you're wanting to write 'forward compatible' password schemes referencing the PHP 5.5 password functions but you're only running PHP 5.4 (say) then you're in luck. Go and find the password compatibility project at: https://github.com/ircmaxell/password_compat/blob/master/lib/password.php
-
+If you're wanting to write 'forward compatible' password schemes referencing the PHP 5.5 password functions but you're only running PHP 5.4 (say) then you're in luck. Go and find the password compatibility project at: https://github.com/ircmaxell/password_compat
